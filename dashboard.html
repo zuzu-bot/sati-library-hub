@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SATI Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .dashboard-header {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .dashboard-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .search-bar {
+            position: relative;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .search-bar { width: 20rem; }
+        }
+
+        .search-bar input {
+            width: 100%;
+            border-radius: 0.75rem;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+            transition: all 0.2s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: rgba(240, 180, 41, 0.3);
+            box-shadow: 0 0 0 2px rgba(240, 180, 41, 0.15);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-foreground);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .book-scroller {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.75rem;
+            margin: 0 -0.25rem;
+        }
+
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            width: 8rem;
+        }
+
+        .book-card.sm { width: 6rem; }
+
+        .book-cover-wrapper {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .book-cover {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-cover: cover;
+            transition: transform 0.3s;
+        }
+
+        .book-card:hover .book-cover {
+            transform: scale(1.05);
+        }
+
+        .unavailable-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(10, 13, 22, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .unavailable-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--destructive);
+        }
+
+        .subject-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 640px) {
+            .subject-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 1024px) {
+            .subject-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .subject-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .subject-card.highlighted {
+            background-color: rgba(240, 180, 41, 0.15);
+            border: 1px solid rgba(240, 180, 41, 0.3);
+            box-shadow: 0 0 20px rgba(240, 180, 41, 0.15);
+        }
+
+        .subject-card:hover {
+            transform: scale(1.02);
+        }
+
+        .author-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .author-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            cursor: pointer;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+        }
+
+        .avatar {
+            height: 2.5rem;
+            width: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .author-count-badge {
+            position: absolute;
+            top: -0.25rem;
+            right: -0.25rem;
+            border-radius: 9999px;
+            background-color: var(--primary);
+            padding: 0.125rem 0.375rem;
+            font-size: 0.5rem;
+            font-weight: 700;
+            color: var(--primary-foreground);
+        }
+
+        @media (min-width: 1280px) {
+            .layout-columns {
+                display: flex;
+                gap: 1.5rem;
+            }
+            .main-content { flex: 1; min-width: 0; }
+            .side-content { width: 18rem; flex-shrink: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="main-wrapper" class="flex-1 lg:ml-64">
+        <main class="p-4 sm:p-6" style="max-width: 80rem; margin: 0 auto;">
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="font-bold text-foreground" style="font-size: 1.5rem; margin: 0;">Dashboard</h1>
+                    <p class="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                        <i data-lucide="brain" class="h-3.5 w-3.5 text-primary"></i> AI-powered recommendations ready
+                    </p>
+                </div>
+                <div class="search-bar">
+                    <i data-lucide="search" class="h-4 w-4"></i>
+                    <input type="text" placeholder="Search books, authors, ISBN...">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="glass rounded-xl p-4 glow-gold">
+                    <i data-lucide="book-open" class="h-5 w-5 text-primary mb-2"></i>
+                    <p id="stat-total" class="font-bold text-xl text-foreground" style="margin: 0;">12,450</p>
+                    <p class="text-xs text-muted-foreground">Total Books</p>
+                </div>
+                <div class="glass rounded-xl p-4 glow-gold">
+                    <i data-lucide="trending-up" class="h-5 w-5 text-cyber-blue mb-2"></i>
+                    <p id="stat-issued" class="font-bold text-xl text-foreground" style="margin: 0;">3,280</p>
+                    <p class="text-xs text-muted-foreground">Issued Books</p>
+                </div>
+                <div class="glass rounded-xl p-4 glow-gold">
+                    <i data-lucide="users" class="h-5 w-5 text-accent mb-2"></i>
+                    <p id="stat-students" class="font-bold text-xl text-foreground" style="margin: 0;">5,640</p>
+                    <p class="text-xs text-muted-foreground">Students</p>
+                </div>
+                <div class="glass rounded-xl p-4 glow-gold">
+                    <i data-lucide="alert-triangle" class="h-5 w-5 text-destructive mb-2"></i>
+                    <p id="stat-overdue" class="font-bold text-xl text-foreground" style="margin: 0;">127</p>
+                    <p class="text-xs text-muted-foreground">Overdue</p>
+                </div>
+            </div>
+
+            <div class="layout-columns">
+                <div class="main-content">
+                    <section class="mb-8">
+                        <div class="section-header">
+                            <h2>Continue Reading</h2>
+                            <button class="btn btn-ghost btn-sm text-primary">Filter <i data-lucide="sliders-horizontal" class="h-4 w-4"></i></button>
+                        </div>
+                        <div id="continue-reading" class="book-scroller">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+
+                    <section class="mb-8">
+                        <div class="section-header">
+                            <h2>Subjects</h2>
+                        </div>
+                        <div id="subjects-list" class="subject-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+
+                    <section class="mb-8">
+                        <div class="section-header">
+                            <h2>New Arrivals</h2>
+                            <button class="btn btn-ghost btn-sm text-primary">Show all</button>
+                        </div>
+                        <div id="new-arrivals" class="book-scroller">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+                </div>
+
+                <div class="side-content">
+                    <section class="mb-8">
+                        <div class="section-header">
+                            <h2>Popular</h2>
+                            <button class="btn btn-ghost btn-sm text-primary">Show all</button>
+                        </div>
+                        <div id="popular-books" class="grid grid-cols-2 gap-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+
+                    <section class="mb-8">
+                        <div class="section-header">
+                            <h2>Authors</h2>
+                            <button class="btn btn-ghost btn-sm text-primary">Show all</button>
+                        </div>
+                        <div id="authors-list" class="author-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+
+                    <section class="glass rounded-xl p-4 glow-gold">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="clock" class="h-4 w-4 text-primary"></i>
+                            <h3 class="font-bold text-foreground" style="font-size: 0.875rem; margin: 0;">Due Soon</h3>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-foreground">Data Structures</span>
+                                <span class="text-destructive font-medium">Mar 5</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-foreground">Engineering Physics</span>
+                                <span class="text-muted-foreground font-medium">Mar 8</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        const renderBook = (book, size = 'md') => {
+            return `
+                <div class="book-card ${size === 'sm' ? 'sm' : ''}">
+                    <div class="book-cover-wrapper border-gradient">
+                        <img src="${book.cover}" alt="${book.title}" class="book-cover">
+                        ${!book.available ? '<div class="unavailable-overlay"><span class="unavailable-text">Unavailable</span></div>' : ''}
+                        <button class="absolute top-2 right-2 rounded-full bg-background/70 backdrop-blur-sm p-1.5 opacity-0 group-hover:opacity-100 transition-opacity border-none cursor-pointer">
+                            <i data-lucide="heart" class="h-3.5 w-3.5 text-primary"></i>
+                        </button>
+                    </div>
+                    <div style="max-width: ${size === 'sm' ? '96px' : '128px'}">
+                        <p class="text-xs font-medium text-foreground truncate" style="margin: 0;">${book.title}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[10px] text-muted-foreground truncate">${book.author}</span>
+                            <span class="text-[10px] text-primary font-medium shrink-0">${book.readers}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderSubject = (subject) => {
+            const isEngineering = subject.name === 'Engineering';
+            return `
+                <div class="subject-card ${isEngineering ? 'highlighted' : 'glass hover:border-primary/15'}">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">${subject.icon}</span>
+                        <span class="text-sm font-medium text-foreground">${subject.name}</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-primary" style="font-size: 1.125rem; margin: 0;">${subject.count}</p>
+                        <p class="text-[10px] text-muted-foreground" style="margin: 0;">Books</p>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderAuthor = (author) => {
+            return `
+                <div class="author-card glass hover:border-primary/15">
+                    <div class="avatar-wrapper">
+                        <div class="avatar">${author.avatar}</div>
+                        <div class="author-count-badge">${author.books}</div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-medium text-foreground truncate" style="margin: 0;">${author.name}</p>
+                        <p class="text-[10px] text-muted-foreground" style="margin: 0;">${author.role}</p>
+                    </div>
+                </div>
+            `;
+        };
+
+        const data = window.libraryData;
+
+        // Stats
+        document.getElementById('stat-total').textContent = data.libraryStats.totalBooks.toLocaleString();
+        document.getElementById('stat-issued').textContent = data.libraryStats.issuedBooks.toLocaleString();
+        document.getElementById('stat-students').textContent = data.libraryStats.totalStudents.toLocaleString();
+        document.getElementById('stat-overdue').textContent = data.libraryStats.overdueBooks;
+
+        // Content
+        document.getElementById('continue-reading').innerHTML = data.previousReading.map(b => renderBook(b)).join('');
+        document.getElementById('subjects-list').innerHTML = data.subjects.map(s => renderSubject(s)).join('');
+        document.getElementById('new-arrivals').innerHTML = data.newBooks.map(b => renderBook(b)).join('');
+        document.getElementById('popular-books').innerHTML = data.popularBooks.slice(0, 4).map(b => renderBook(b, 'sm')).join('');
+        document.getElementById('authors-list').innerHTML = data.authors.slice(0, 4).map(a => renderAuthor(a)).join('');
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

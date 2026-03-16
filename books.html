@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books | SATI Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .search-container {
+                flex-direction: row;
+            }
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-foreground);
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            border-radius: 0.75rem;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+            transition: all 0.2s;
+        }
+
+        .search-input-wrapper input:focus {
+            outline: none;
+            border-color: rgba(240, 180, 41, 0.3);
+        }
+
+        .categories-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-btn {
+            white-space: nowrap;
+            border-radius: 9999px;
+            padding: 0.375rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover {
+            color: var(--foreground);
+            border-color: rgba(240, 180, 41, 0.2);
+        }
+
+        .category-btn.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) { .book-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 768px) { .book-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (min-width: 1024px) { .book-grid { grid-template-columns: repeat(5, 1fr); } }
+        @media (min-width: 1280px) { .book-grid { grid-template-columns: repeat(6, 1fr); } }
+
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .book-cover-wrapper {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            width: 100%;
+            aspect-ratio: 2/3;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .book-card:hover .book-cover {
+            transform: scale(1.05);
+        }
+
+        .unavailable-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(10, 13, 22, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .unavailable-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--destructive);
+        }
+    </style>
+</head>
+<body>
+    <div id="main-wrapper" class="flex-1 lg:ml-64">
+        <main class="p-4 sm:p-6" style="max-width: 80rem; margin: 0 auto;">
+            <div class="mb-6">
+                <h1 class="font-bold text-foreground" style="font-size: 1.5rem; margin: 0;">Book Catalog</h1>
+                <p class="text-sm text-muted-foreground mt-1">Browse and discover from our collection</p>
+            </div>
+
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i data-lucide="search" class="h-4 w-4"></i>
+                    <input type="text" id="search-input" placeholder="Search by title, author, ISBN...">
+                </div>
+                <button class="btn btn-outline flex items-center gap-2" style="border-radius: 0.75rem;">
+                    <i data-lucide="sliders-horizontal" class="h-4 w-4"></i> Filters
+                </button>
+            </div>
+
+            <div class="categories-wrapper" id="categories">
+                <!-- Populated by JS -->
+            </div>
+
+            <div id="book-results" class="book-grid">
+                <!-- Populated by JS -->
+            </div>
+
+            <div id="no-results" class="text-center py-16" style="display: none;">
+                <p class="text-muted-foreground">No books found matching your criteria.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        const categories = ["All", "Fiction", "Non-Fiction", "Science", "Art", "Engineering", "Self-Help", "Biography"];
+        let currentCategory = "All";
+        let searchQuery = "";
+
+        const allBooks = [
+            ...window.libraryData.previousReading,
+            ...window.libraryData.popularBooks,
+            ...window.libraryData.newBooks
+        ];
+
+        const renderBooks = () => {
+            const filtered = allBooks.filter(b => {
+                const matchesSearch = b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    b.author.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesCat = currentCategory === "All" || b.category === currentCategory;
+                return matchesSearch && matchesCat;
+            });
+
+            const resultsContainer = document.getElementById('book-results');
+            const noResults = document.getElementById('no-results');
+
+            if (filtered.length === 0) {
+                resultsContainer.style.display = 'none';
+                noResults.style.display = 'block';
+            } else {
+                resultsContainer.style.display = 'grid';
+                noResults.style.display = 'none';
+                resultsContainer.innerHTML = filtered.map(book => `
+                    <div class="book-card">
+                        <div class="book-cover-wrapper border-gradient">
+                            <img src="${book.cover}" alt="${book.title}" class="book-cover">
+                            ${!book.available ? '<div class="unavailable-overlay"><span class="unavailable-text">Unavailable</span></div>' : ''}
+                            <button class="absolute top-2 right-2 rounded-full bg-background/70 backdrop-blur-sm p-1.5 opacity-100 border-none cursor-pointer">
+                                <i data-lucide="heart" class="h-3.5 w-3.5 text-primary"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-foreground truncate" style="margin: 0;">${book.title}</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[10px] text-muted-foreground truncate">${book.author}</span>
+                                <span class="text-[10px] text-primary font-medium shrink-0">${book.readers}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            }
+        };
+
+        const renderCategories = () => {
+            const container = document.getElementById('categories');
+            container.innerHTML = categories.map(cat => `
+                <button class="category-btn ${currentCategory === cat ? 'active' : ''}" data-cat="${cat}">
+                    ${cat}
+                </button>
+            `).join('');
+
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentCategory = btn.getAttribute('data-cat');
+                    renderCategories();
+                    renderBooks();
+                });
+            });
+        };
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderBooks();
+        });
+
+        renderCategories();
+        renderBooks();
+    </script>
+</body>
+</html>

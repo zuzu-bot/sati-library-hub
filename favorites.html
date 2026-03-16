@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorites | SATI Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) { .book-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 768px) { .book-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (min-width: 1024px) { .book-grid { grid-template-columns: repeat(5, 1fr); } }
+
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .book-cover-wrapper {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .book-card:hover .book-cover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="main-wrapper" class="flex-1 lg:ml-64">
+        <main class="p-4 sm:p-6" style="max-width: 80rem; margin: 0 auto;">
+            <div class="flex items-center gap-3 mb-6">
+                <i data-lucide="heart" class="h-6 w-6 text-primary"></i>
+                <div>
+                    <h1 class="font-bold text-foreground" style="font-size: 1.5rem; margin: 0;">Favorites</h1>
+                    <p class="text-sm text-muted-foreground mt-1">Your saved books</p>
+                </div>
+            </div>
+
+            <div id="favorites-grid" class="book-grid">
+                <!-- Populated by JS -->
+            </div>
+
+            <div id="empty-favorites" class="text-center py-16" style="display: none;">
+                <i data-lucide="heart" class="h-12 w-12 text-muted-foreground mx-auto mb-4"></i>
+                <p class="text-muted-foreground">No favorites yet. Start exploring!</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        const favorites = window.libraryData.popularBooks;
+        const container = document.getElementById('favorites-grid');
+        const emptyState = document.getElementById('empty-favorites');
+
+        if (favorites.length === 0) {
+            container.style.display = 'none';
+            emptyState.style.display = 'block';
+        } else {
+            container.innerHTML = favorites.map(book => `
+                <div class="book-card">
+                    <div class="book-cover-wrapper border-gradient">
+                        <img src="${book.cover}" alt="${book.title}" class="book-cover">
+                        <button class="absolute top-2 right-2 rounded-full bg-background/70 backdrop-blur-sm p-1.5 opacity-100 border-none cursor-pointer">
+                            <i data-lucide="heart" class="h-3.5 w-3.5 text-primary"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-foreground truncate" style="margin: 0;">${book.title}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[10px] text-muted-foreground truncate">${book.author}</span>
+                            <span class="text-[10px] text-primary font-medium shrink-0">${book.readers}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

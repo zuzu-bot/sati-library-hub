@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | SATI Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem;
+        }
+
+        .icon-box {
+            height: 2.5rem;
+            width: 2.5rem;
+            border-radius: 0.5rem;
+            background-color: rgba(240, 180, 41, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-wrapper" class="flex-1 lg:ml-64">
+        <main class="p-4 sm:p-6" style="max-width: 40rem; margin: 0 auto;">
+            <div class="mb-6">
+                <h1 class="font-bold text-foreground" style="font-size: 1.5rem; margin: 0;">Settings</h1>
+                <p class="text-sm text-muted-foreground mt-1">Manage your account preferences</p>
+            </div>
+
+            <div class="settings-list">
+                <div class="glass rounded-xl settings-item">
+                    <div class="icon-box">
+                        <i data-lucide="user" class="h-5 w-5 text-primary"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-foreground text-sm" style="margin: 0;">Profile</p>
+                        <p class="text-xs text-muted-foreground" style="margin: 0;">Update your name, email, and avatar</p>
+                    </div>
+                    <button class="btn btn-glass btn-sm">Edit</button>
+                </div>
+
+                <div class="glass rounded-xl settings-item">
+                    <div class="icon-box">
+                        <i data-lucide="bell" class="h-5 w-5 text-primary"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-foreground text-sm" style="margin: 0;">Notifications</p>
+                        <p class="text-xs text-muted-foreground" style="margin: 0;">Configure email and push notifications</p>
+                    </div>
+                    <button class="btn btn-glass btn-sm">Edit</button>
+                </div>
+
+                <div class="glass rounded-xl settings-item">
+                    <div class="icon-box">
+                        <i data-lucide="shield" class="h-5 w-5 text-primary"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-foreground text-sm" style="margin: 0;">Privacy & Security</p>
+                        <p class="text-xs text-muted-foreground" style="margin: 0;">Password, 2FA, and session management</p>
+                    </div>
+                    <button class="btn btn-glass btn-sm">Edit</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
