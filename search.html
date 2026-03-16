@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search | SATI Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .search-container {
+            max-width: 56rem;
+            margin: 0 auto;
+        }
+
+        .search-box-wrapper {
+            margin-bottom: 2rem;
+        }
+
+        .ai-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .ai-input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+        }
+
+        .ai-input-wrapper input {
+            width: 100%;
+            border-radius: 0.75rem;
+            background-color: var(--input);
+            border: 1px solid transparent;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+            transition: all 0.2s;
+        }
+
+        .ai-input-wrapper input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(240, 180, 41, 0.3);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .suggestion-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            border-radius: 9999px;
+            background-color: var(--secondary);
+            border: none;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-btn:hover {
+            background-color: rgba(33, 38, 56, 0.8);
+            color: var(--foreground);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) { .results-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 768px) { .results-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .book-cover-wrapper {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .book-card:hover .book-cover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="main-wrapper" class="flex-1 lg:ml-64">
+        <main class="p-4 sm:p-6" style="max-width: 60rem; margin: 0 auto;">
+            <div class="text-center mb-8">
+                <h1 class="font-bold text-foreground mb-2" style="font-size: 1.5rem;">
+                    <span class="text-gradient-gold">AI-Powered</span> Search
+                </h1>
+                <p class="text-sm text-muted-foreground">
+                    Describe what you're looking for — our AI understands natural language
+                </p>
+            </div>
+
+            <div class="glass rounded-2xl p-6 glow-gold search-box-wrapper">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="ai-input-wrapper">
+                        <i data-lucide="brain" class="h-5 w-5"></i>
+                        <input type="text" id="ai-search-input" placeholder="e.g. 'books about machine learning for beginners' or 'ISBN 978-0-13-468599-1'">
+                    </div>
+                    <button id="search-btn" class="btn btn-royal btn-lg">
+                        <i data-lucide="search" class="h-4 w-4"></i> Search
+                    </button>
+                </div>
+                <div class="suggestions">
+                    <button class="suggestion-btn" data-query="Data Structures"><i data-lucide="sparkles" class="h-3 w-3"></i> Data Structures</button>
+                    <button class="suggestion-btn" data-query="Machine Learning"><i data-lucide="sparkles" class="h-3 w-3"></i> Machine Learning</button>
+                    <button class="suggestion-btn" data-query="Thermodynamics"><i data-lucide="sparkles" class="h-3 w-3"></i> Thermodynamics</button>
+                    <button class="suggestion-btn" data-query="Indian History"><i data-lucide="sparkles" class="h-3 w-3"></i> Indian History</button>
+                </div>
+            </div>
+
+            <div id="results-area" style="display: none;">
+                <p id="results-count" class="text-sm text-muted-foreground mb-4">0 results found</p>
+                <div id="results-grid" class="results-grid">
+                    <!-- Populated by JS -->
+                </div>
+                <div id="no-results" class="text-center py-12 text-muted-foreground" style="display: none;">
+                    No books found. Try a different query.
+                </div>
+            </div>
+
+            <div id="search-prompt" class="text-center py-8">
+                <p class="text-muted-foreground text-sm">Start typing to discover books from our collection</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        const input = document.getElementById('ai-search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const resultsArea = document.getElementById('results-area');
+        const searchPrompt = document.getElementById('search-prompt');
+        const resultsGrid = document.getElementById('results-grid');
+        const resultsCount = document.getElementById('results-count');
+        const noResults = document.getElementById('no-results');
+
+        const allBooks = [
+            ...window.libraryData.previousReading,
+            ...window.libraryData.popularBooks,
+            ...window.libraryData.newBooks
+        ];
+
+        const performSearch = () => {
+            const query = input.value.trim().toLowerCase();
+            if (!query) return;
+
+            searchPrompt.style.display = 'none';
+            resultsArea.style.display = 'block';
+
+            const filtered = allBooks.filter(b =>
+                b.title.toLowerCase().includes(query) ||
+                b.author.toLowerCase().includes(query)
+            );
+
+            resultsCount.textContent = `${filtered.length} results found`;
+
+            if (filtered.length === 0) {
+                resultsGrid.style.display = 'none';
+                noResults.style.display = 'block';
+            } else {
+                resultsGrid.style.display = 'grid';
+                noResults.style.display = 'none';
+                resultsGrid.innerHTML = filtered.map(book => `
+                    <div class="book-card">
+                        <div class="book-cover-wrapper border-gradient">
+                            <img src="${book.cover}" alt="${book.title}" class="book-cover">
+                            <button class="absolute top-2 right-2 rounded-full bg-background/70 backdrop-blur-sm p-1.5 opacity-100 border-none cursor-pointer">
+                                <i data-lucide="heart" class="h-3.5 w-3.5 text-primary"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-foreground truncate" style="margin: 0;">${book.title}</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[10px] text-muted-foreground truncate">${book.author}</span>
+                                <span class="text-[10px] text-primary font-medium shrink-0">${book.readers}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            }
+        };
+
+        searchBtn.addEventListener('click', performSearch);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        document.querySelectorAll('.suggestion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                input.value = btn.getAttribute('data-query');
+                performSearch();
+            });
+        });
+    </script>
+</body>
+</html>
