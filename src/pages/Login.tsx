@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Library, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -15,38 +14,21 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: name },
-            emailRedirectTo: window.location.origin,
-          },
-        });
-        if (error) throw error;
-        toast.success("Account created! Check your email to verify.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Welcome back!");
-        navigate("/dashboard");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Authentication failed");
-    } finally {
+    setTimeout(() => {
+      localStorage.setItem("sati_logged_in", "true");
+      localStorage.setItem("sati_user", JSON.stringify({ name: name || "Student", email }));
+      toast.success(isSignUp ? "Account created!" : "Welcome back!");
+      navigate("/dashboard");
       setLoading(false);
-    }
+    }, 600);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4">
-      {/* Background */}
       <div className="absolute inset-0">
         <div className="absolute top-1/3 left-1/4 w-80 h-80 bg-primary/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-cyber/5 rounded-full blur-[100px]" />
@@ -58,13 +40,11 @@ const Login = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md relative z-10"
       >
-        {/* Back */}
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="h-4 w-4" /> Back to Home
         </Link>
 
         <div className="glass-strong rounded-2xl p-8 glow-gold">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="h-14 w-14 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4">
               <Library className="h-7 w-7 text-primary-foreground" />
