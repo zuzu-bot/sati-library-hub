@@ -34,12 +34,15 @@ class Database {
                     name TEXT NOT NULL,
                     email TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
+                    role TEXT DEFAULT 'student',
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )");
                 $this->conn->exec("CREATE TABLE IF NOT EXISTS books (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     title TEXT NOT NULL,
                     author TEXT NOT NULL,
+                    description TEXT,
+                    cover_image_url TEXT,
                     user_id INTEGER,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

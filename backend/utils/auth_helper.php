@@ -11,7 +11,7 @@ class Auth {
         return $_ENV['JWT_SECRET'] ?? "YOUR_DEFAULT_SECRET_KEY_FOR_JWT_ENCODING_SATI_LIBRARY_2024";
     }
 
-    public static function generateToken($user_id, $email) {
+    public static function generateToken($user_id, $email, $role = 'student') {
         $issuer = $_ENV['JWT_ISSUER'] ?? "sati_library";
         $audience = $_ENV['JWT_AUDIENCE'] ?? "sati_library_users";
         $issuedAt = time();
@@ -24,7 +24,8 @@ class Auth {
             "exp" => $expire,
             "data" => [
                 "id" => $user_id,
-                "email" => $email
+                "email" => $email,
+                "role" => $role
             ]
         ];
 

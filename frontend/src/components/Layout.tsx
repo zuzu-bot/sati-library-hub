@@ -16,6 +16,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navItems = [
     { path: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { path: '/books', icon: <BookOpen size={20} />, label: 'Books' },
+    ...(user?.role === 'admin' ? [{ path: '/users', icon: <Library size={20} />, label: 'Users' }] : []),
   ];
 
   return (

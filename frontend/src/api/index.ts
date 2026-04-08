@@ -15,6 +15,7 @@ API.interceptors.request.use((config) => {
 export const authAPI = {
   login: (data: any) => API.post('/login.php', data),
   register: (data: any) => API.post('/register.php', data),
+  getAllUsers: () => API.get('/users.php'),
 };
 
 export const bookAPI = {
@@ -27,6 +28,7 @@ export const bookAPI = {
 
 export const aiAPI = {
   getRecommendations: () => API.get('/recommend-books.php'),
+  getSummary: (title: string) => API.post('/ai_summary.php', { title }),
 };
 
 export default API;
