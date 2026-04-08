@@ -6,15 +6,16 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import BookList from './pages/BookList';
 import AddEditBook from './pages/AddEditBook';
+import AdminUsers from './pages/AdminUsers';
 import Layout from './components/Layout';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) => {
   const { user, loading } = useAuth();
   if (loading) return <div>Loading...</div>;
   if (!user) return <Navigate to="/login" />;
+  if (adminOnly && user.role !== 'admin') return <Navigate to="/" />;
   return <>{children}</>;
 };
-
 function App() {
   return (
     <AuthProvider>
@@ -44,9 +45,23 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/books/edit/:id" element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <Layout>
                 <AddEditBook />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/books/add" element={
+            <ProtectedRoute adminOnly>
+              <Layout>
+                <AddEditBook />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/users" element={
+            <ProtectedRoute adminOnly>
+              <Layout>
+                <AdminUsers />
               </Layout>
             </ProtectedRoute>
           } />
