@@ -1,31 +1,46 @@
-# SATI Library - Plain HTML/CSS/JS Version
+# SATI Library Management System
 
-This is the plain HTML, CSS, and JavaScript version of the SATI Library Management System.
+A full-stack book management system with a modern React frontend, PHP backend, and PostgreSQL database.
 
-## Features
-- AI-Powered UI look and feel
-- Multiple pages for different functionalities
-- Hardcoded mock data
-- Responsive design
-- Lucide Icons (via CDN)
-- Google Fonts (Cinzel, Inter, JetBrains Mono)
+## 🚀 Features
+- **Modern UI**: Built with React, Tailwind CSS, and Lucide icons.
+- **Authentication**: JWT-based login and registration.
+- **Book CRUD**: Full management of your personal book collection.
+- **AI-Powered**: Ready for AI integration with a FastAPI placeholder.
+- **Environment Aware**: Configurable via `.env` files.
 
-## Project Structure
-- `index.html`: Landing page
-- `login.html`: Sign in / Sign up page
-- `dashboard.html`: Main dashboard
-- `books.html`: Book catalog with filtering
-- `search.html`: AI-style search interface
-- `issued.html`: Borrowed books tracking
-- `favorites.html`: Saved books
-- `settings.html`: User preferences
-- `css/style.css`: Core styles and design tokens
-- `js/data.js`: Mock data
-- `js/dashboard.js`: Shared dashboard logic (sidebar/navigation)
-- `public/`: Static assets (images, etc.)
+## 📁 Project Structure
+- `/frontend`: React application (Vite + TypeScript + Tailwind)
+- `/backend`: PHP REST APIs (JWT Auth)
+- `/ai-engine`: FastAPI dummy placeholder
+- `/database`: SQL schema and SQLite fallback
 
-## How to run
-Simply open `index.html` in any modern web browser. No build tools or servers are required.
+## ⚙️ Setup Instructions
 
-## Legacy Version
-The original React/TypeScript version is preserved in the `legacy` branch.
+### 1. Backend (PHP)
+1. Navigate to `/backend`.
+2. Install dependencies: `composer install`.
+3. Create a `.env` in the root directory (see `.env.example`).
+4. Start the PHP server: `php -S localhost:8000 -t api`.
+
+### 2. Frontend (React)
+1. Navigate to `/frontend`.
+2. Install dependencies: `npm install`.
+3. Create a `.env` in the `/frontend` directory with `VITE_API_BASE_URL=http://localhost:8000`.
+4. Start the development server: `npm run dev`.
+
+### 3. AI Engine (Optional)
+1. Navigate to `/ai-engine`.
+2. Install dependencies: `pip install -r requirements.txt`.
+3. Run the engine: `python main.py`.
+
+### 4. Database
+- The system defaults to **Neon PostgreSQL** if the `pgsql` driver is available in PHP.
+- Otherwise, it falls back to a local SQLite database for demonstration.
+- Find the PostgreSQL schema in `database/schema.sql`.
+
+## 🛠 Tech Stack
+- **Frontend**: React, Vite, Tailwind CSS, Lucide-react, Axios, React Router.
+- **Backend**: PHP (Vanilla), Firebase/PHP-JWT, PHP-Dotenv.
+- **Database**: PostgreSQL (Neon).
+- **AI Engine**: FastAPI (Python).
