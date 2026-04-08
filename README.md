@@ -3,11 +3,12 @@
 A full-stack book management system with a modern React frontend, PHP backend, and PostgreSQL database.
 
 ## 🚀 Features
-- **Modern UI**: Built with React, Tailwind CSS, and Lucide icons.
-- **Authentication**: JWT-based login and registration.
-- **Book CRUD**: Full management of your personal book collection.
-- **AI-Powered**: Ready for AI integration with a FastAPI placeholder.
-- **Environment Aware**: Configurable via `.env` files.
+- **Modern UI**: Built with React, Tailwind CSS, and Lucide gold/glassmorphism theme.
+- **Role-Based Authentication (RBAC)**: Supports `admin` and `student` roles.
+- **Book Management**: Full CRUD for admins; descriptions and cover images supported.
+- **AI Book Summaries**: Integrated with Google Gemini for instant 3-5 line summaries.
+- **AI Engine Placeholder**: FastAPI structure in `/ai-engine` for modular AI development.
+- **Environment Aware**: Fully configurable via `.env` files with SQLite fallback.
 
 ## 📁 Project Structure
 - `/frontend`: React application (Vite + TypeScript + Tailwind)
@@ -18,10 +19,12 @@ A full-stack book management system with a modern React frontend, PHP backend, a
 ## ⚙️ Setup Instructions
 
 ### 1. Backend (PHP)
-1. Navigate to `/backend`.
-2. Install dependencies: `composer install`.
-3. Create a `.env` in the root directory (see `.env.example`).
-4. Start the PHP server: `php -S localhost:8000 -t api`.
+1. Navigate to the root directory.
+2. Install dependencies in the `/backend` folder: `cd backend && composer install`.
+3. Create a `.env` in the project root directory (copy from `.env.example`).
+4. Add your `GEMINI_API_KEY` to the `.env` file for AI features.
+5. Start the PHP server from the `/backend/api` directory:
+   `php -S localhost:8000 -t backend/api`
 
 ### 2. Frontend (React)
 1. Navigate to `/frontend`.
